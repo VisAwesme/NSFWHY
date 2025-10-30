@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NSFWHY</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="tabs">
+    <button class="tab-button" data-tab="counter">Counter</button>
+    <button class="tab-button" data-tab="settings">Settings</button>
+    <button class="tab-button" data-tab="help">Help</button>
+  </div>
+
+  <div class="tab-content" id="counter">
+    <h2>🧠 Your Streak</h2>
+    <div id="streak-box">
+      <span id="streak-count">0</span> days
+    </div>
+    <button id="motivate">Give me motivation</button>
+    <p id="quote"></p>
+  </div>
+
+  <div class="tab-content" id="settings">
+    <h2>⚙️ Settings</h2>
+    <p>Notifications, blocked sites, etc.</p>
+  </div>
+
+  <div class="tab-content" id="help">
+    <h2>❓ Help</h2>
+    <p>Instructions / FAQ</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

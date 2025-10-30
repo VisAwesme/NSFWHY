@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NSFWHY - Blocked</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <div class="container">
+    <h1>😔 NSFWHY</h1>
+    <p class="message">I believed in you… but you tried to visit a blocked site!</p>
+    <p id="targetHost" class="target-host"></p>
+    <div class="buttons">
+      <button id="goBack">Go Back</button>
+      <button id="continue">Continue Anyway</button>
+    </div>
+    <p class="note" id="note">Your streak may be reset if you continue.</p>
+  </div>
+
+  <script>
+    (function () {
+      // Small helper to read ?target= encoded param
+      function getTargetParam() {
+        try {
+          const params = new URLSearchParams(location.search);
+          return params.get('target');
+        } catch (e) {
+          return null;
+        }
+      }
+
+      const goBackBtn = document.getElementById('goBack');
+      const continueBtn = document.getElementById('continue');
+      const targetHostEl = document.getElementById('targetHost');
+      const noteEl = document.getElementById('note');
+
+      const target = getTargetParam();
+      let decodedTarget = null;
+      if (target) {
+        try {
+          decodedTarget = decodeURIComponent(target);
+          const url = new URL(decodedTarget);
+          targetHostEl.textContent = `Blocked domain: ${url.hostname}`;
+        } catch (e) {
+          targetHostEl.textContent = '';
+        }
+      }
+
+      goBackBtn.addEventListener('click', () => {
+        // Try to go back; if not possible, close the tab where allowed
+        if (history.length > 1) {
+          history.back();
+        } else if (typeof browser !== 'undefined' && browser.tabs) {
+          // request background to close this tab
+          browser.runtime.sendMessage({ action: 'closeBlockedTab' });
+        } else {
+          window.location.href = 'about:blank';
+        }
+      });
+
+      continueBtn.addEventListener('click', async () => {
+        // If there is a target, navigate there. Reset streak in storage.
+        try {
+          if (typeof browser !== 'undefined' && browser.storage && browser.runtime) {
+            await browser.storage.local.set({ streak: 0 });
+            // Optionally notify background about continue
+            browser.runtime.sendMessage({ action: 'userContinued', target: decodedTarget });
+          }
+        } catch (e) {
+          // ignore storage errors
+        }
+
+        if (decodedTarget) {
+          // Navigate in this tab to the original URL
+          window.location.href = decodedTarget;
+        } else {
+          // nothing to go to — go back or close
+          if (history.length > 1) history.back();
+          else window.location.href = 'about:blank';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
